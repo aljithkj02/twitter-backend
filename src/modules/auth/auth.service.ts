@@ -12,6 +12,7 @@ import * as FirebaseAuth from 'firebase/auth';
 import { LoginUserDto } from '@modules/auth/dto/login-user.dto';
 import { FirebaseService } from '@/infrastructure/firebase/firebase.service';
 import { FirebaseError } from 'firebase/app';
+import { UserCredential } from 'firebase/auth';
 
 @Injectable()
 export class AuthService {
@@ -26,76 +27,68 @@ export class AuthService {
   }
 
   async registerUser({ name, email, password }: RegisterUserDto) {
+    const isUserExist = await this.userRepository.findOneBy({
+      email,
+    });
+
+    if (isUserExist) {
+      throw new ConflictException('User with this email already exists.');
+    }
+
+    let userCredential: UserCredential;
     try {
-      const isUserExist = await this.userRepository.findOneBy({
-        email,
-      });
-
-      if (isUserExist) {
-        throw new ConflictException('User with this email already exists.');
-      }
-
-      const userCredential = await FirebaseAuth.createUserWithEmailAndPassword(
+      userCredential = await FirebaseAuth.createUserWithEmailAndPassword(
         FirebaseAuth.getAuth(),
         email,
         password,
       );
-
-      const user = this.userRepository.create({
-        name,
-        email,
-      });
-
-      await this.userRepository.save(user);
-
-      return {
-        statusCode: HttpStatus.CREATED,
-        message: 'User registered successfully',
-        acceessToken: await userCredential.user.getIdToken(),
-      };
     } catch (error) {
       if (error instanceof FirebaseError) {
         this.firebaseService.handleFirebaseError(error);
-      } else {
-        return {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: (error as Error).message,
-        };
       }
     }
+
+    const user = this.userRepository.create({
+      name,
+      email,
+    });
+
+    await this.userRepository.save(user);
+
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'User registered successfully',
+      acceessToken: await userCredential.user.getIdToken(),
+    };
   }
 
   async loginUser({ email, password }: LoginUserDto) {
+    const isUserExist = await this.userRepository.findOneBy({
+      email,
+    });
+
+    if (!isUserExist) {
+      throw new NotFoundException('User with this email does not exist.');
+    }
+
+    let userCredential: UserCredential;
     try {
-      const isUserExist = await this.userRepository.findOneBy({
-        email,
-      });
-
-      if (!isUserExist) {
-        throw new NotFoundException('User with this email does not exist.');
-      }
-
-      const userCredential = await FirebaseAuth.signInWithEmailAndPassword(
+      userCredential = await FirebaseAuth.signInWithEmailAndPassword(
         FirebaseAuth.getAuth(),
         email,
         password,
       );
-
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Sign-in successful',
-        acceessToken: await userCredential.user.getIdToken(),
-      };
     } catch (error) {
       if (error instanceof FirebaseError) {
         this.firebaseService.handleFirebaseError(error);
-      } else {
-        return {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: (error as Error).message,
-        };
       }
     }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Sign-in successful',
+      acceessToken: await userCredential.user.getIdToken(),
+    };
   }
 
   findOne(id: number) {
