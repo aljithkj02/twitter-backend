@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { FirebaseError } from 'firebase/app';
 
 @Injectable()
 export class FirebaseClientService {
@@ -12,5 +17,14 @@ export class FirebaseClientService {
       appId: process.env.FIREBASE_APP_ID,
       measurementId: process.env.FIREBASE_MEASUREMENT_ID,
     };
+  }
+
+  handleFirebaseError(error: FirebaseError): void {
+    switch (error.code) {
+      case 'auth/invalid-credential':
+        throw new UnauthorizedException('Invalid credential');
+      default:
+        throw new InternalServerErrorException('An unexpected error occurred');
+    }
   }
 }
