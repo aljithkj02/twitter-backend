@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Follow } from '@modules/follow/entities/follow.entity';
+import { Follow } from '@/modules/user/entities/follow.entity';
 
 @Entity('users')
 export class User {

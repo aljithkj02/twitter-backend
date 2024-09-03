@@ -90,12 +90,4 @@ export class AuthService {
       acceessToken: await userCredential.user.getIdToken(),
     };
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
 }
