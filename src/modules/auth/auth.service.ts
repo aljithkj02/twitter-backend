@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { RegisterUserDto } from '@modules/auth/dto/register-user.dto';
 import * as FirebaseAuth from 'firebase/auth';
 import { LoginUserDto } from '@modules/auth/dto/login-user.dto';
-import { FirebaseClientService } from '@modules/firebase/firebase-client.service';
+import { FirebaseService } from '@/infrastructure/firebase/firebase.service';
 import { FirebaseError } from 'firebase/app';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly firebaseClientService: FirebaseClientService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   async findAll() {
@@ -55,7 +55,7 @@ export class AuthService {
       };
     } catch (error) {
       if (error instanceof FirebaseError) {
-        this.firebaseClientService.handleFirebaseError(error);
+        this.firebaseService.handleFirebaseError(error);
       } else {
         return {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -88,7 +88,7 @@ export class AuthService {
       };
     } catch (error) {
       if (error instanceof FirebaseError) {
-        this.firebaseClientService.handleFirebaseError(error);
+        this.firebaseService.handleFirebaseError(error);
       } else {
         return {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

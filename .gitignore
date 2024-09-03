@@ -18,6 +18,8 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+firebase-client-config.json
+firebase-service-account-key.json
 
 # IDEs and editors
 /.idea
