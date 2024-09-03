@@ -1,5 +1,11 @@
-import { Controller, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from '@modules/user/user.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+
+@ApiTags('Follow System')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('bearer'))
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
