@@ -1,10 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from '@modules/auth/dto/register-user.dto';
 import * as FirebaseAuth from 'firebase/auth';
+import { LoginUserDto } from '@modules/auth/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,16 +40,35 @@ export class AuthService {
     const user = this.userRepository.create({
       name,
       email,
-      password,
     });
 
     await this.userRepository.save(user);
 
-    console.log(await userCredential.user.getIdToken());
-
     return {
       statusCode: HttpStatus.CREATED,
       message: 'User registered successfully',
+      acceessToken: await userCredential.user.getIdToken(),
+    };
+  }
+
+  async loginUser({ email, password }: LoginUserDto) {
+    const isUserExist = await this.userRepository.findOneBy({
+      email,
+    });
+
+    if (!isUserExist) {
+      throw new NotFoundException('User with this email does not exist.');
+    }
+
+    const userCredential = await FirebaseAuth.signInWithEmailAndPassword(
+      FirebaseAuth.getAuth(),
+      email,
+      password,
+    );
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Sign-in successful',
       acceessToken: await userCredential.user.getIdToken(),
     };
   }
