@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '@modules/user/entities/user.entity';
+import { User } from '@modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { RegisterUserDto } from '@modules/auth/dto/register-user.dto';
 import * as FirebaseAuth from 'firebase/auth';
@@ -17,8 +17,8 @@ import { UserCredential } from 'firebase/auth';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly firebaseService: FirebaseService,
   ) {}
 

@@ -1,7 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Follow } from '@modules/follow/entities/follow.entity';
 
-@Entity()
-export class UserEntity {
+@Entity('users')
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -10,4 +18,16 @@ export class UserEntity {
 
   @Column({ unique: true })
   email: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @OneToMany(() => Follow, (follow) => follow.follower)
+  following: Follow[];
+
+  @OneToMany(() => Follow, (follow) => follow.followee)
+  followers: Follow[];
 }
