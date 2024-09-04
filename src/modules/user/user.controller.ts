@@ -7,7 +7,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { UserService } from '@modules/user/user.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FollowService } from '@modules/user/follow.service';
 import { User } from './entities/user.entity';
@@ -24,6 +24,7 @@ export class UserController {
   ) {}
 
   @Get('follow/:userId')
+  @ApiOperation({ summary: 'To follow a user' })
   follow(
     @Param('userId', new ParseIntPipe()) userId: number,
     @Req() req: Request,
@@ -32,6 +33,7 @@ export class UserController {
   }
 
   @Get('unfollow/:userId')
+  @ApiOperation({ summary: 'To unfollow a user' })
   unfollow(
     @Param('userId', new ParseIntPipe()) userId: number,
     @Req() req: Request,
@@ -40,11 +42,17 @@ export class UserController {
   }
 
   @Get('all')
+  @ApiOperation({
+    summary: 'To get all the users data in the app. (for checking purpose)',
+  })
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'To get a single user data by user id. (for checking purpose)',
+  })
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
