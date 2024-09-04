@@ -39,7 +39,7 @@ export class UserController {
     return this.followService.unfollowUser(userId, req.user as User);
   }
 
-  @Get('')
+  @Get('all')
   findAll() {
     return this.userService.findAll();
   }

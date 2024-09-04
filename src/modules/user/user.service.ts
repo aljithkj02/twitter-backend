@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@modules/user/entities/user.entity';
+import { UserSerializer } from '@modules/user/serializers/user.serializer';
 
 @Injectable()
 export class UserService {
@@ -11,10 +12,33 @@ export class UserService {
   ) {}
 
   async findAll() {
-    return this.userRepository.find();
+    const users = await this.userRepository.find({
+      relations: [
+        'followers',
+        'followers.follower',
+        'following',
+        'following.followee',
+      ],
+    });
+
+    return UserSerializer.toDtos(users);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findOne(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: [
+        'followers',
+        'followers.follower',
+        'following',
+        'following.followee',
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException('No such user exist!');
+    }
+
+    return UserSerializer.toDto(user);
   }
 }
