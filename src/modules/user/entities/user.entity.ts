@@ -7,6 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Follow } from '@/modules/user/entities/follow.entity';
+import { Tweet } from '@/modules/tweet/entities/tweet.entity';
+import { Like } from '@/modules/tweet/entities/like.entity';
+import { Retweet } from '@/modules/tweet/entities/retweet.entity';
 
 @Entity('users')
 export class User {
@@ -30,4 +33,13 @@ export class User {
 
   @OneToMany(() => Follow, (follow) => follow.followee)
   followers: Follow[];
+
+  @OneToMany(() => Tweet, (tweet) => tweet.author, { cascade: true })
+  tweets: Tweet[];
+
+  @OneToMany(() => Like, (like) => like.user, { cascade: true })
+  likes: Like[];
+
+  @OneToMany(() => Retweet, (retweet) => retweet.user, { cascade: true })
+  retweets: Retweet[];
 }
