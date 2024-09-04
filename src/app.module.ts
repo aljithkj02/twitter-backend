@@ -4,7 +4,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '@modules/user/user.module';
 import { FirebaseModule } from '@/infrastructure/firebase/firebase.module';
-import { TweetModule } from './modules/tweet/tweet.module';
+import { TweetModule } from '@modules/tweet/tweet.module';
+import { TimelineModule } from '@modules/timeline/timeline.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TweetModule } from './modules/tweet/tweet.module';
     AuthModule,
     UserModule,
     TweetModule,
+    TimelineModule,
   ],
 })
 export class AppModule {}
