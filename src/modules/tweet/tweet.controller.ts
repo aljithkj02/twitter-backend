@@ -39,6 +39,11 @@ export class TweetController {
     return this.tweetService.createTweet(createTweetDto, req.user as User);
   }
 
+  @Get('retweet/:id')
+  retweet(@Req() req: Request, @Param('id', new ParseIntPipe()) id: number) {
+    return this.tweetService.retweet(id, req.user as User);
+  }
+
   @Put(':id')
   updateTweet(
     @Body() updateTweetDto: UpdateTweetDto,
