@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tweet } from '@modules/tweet/entities/tweet.entity';
 import { Repository } from 'typeorm';
 import { UpdateTweetDto } from '@modules/tweet/dto/update-tweet.dto';
+import { TweetSerializer } from './serializers/tweet.serializer';
 
 @Injectable()
 export class TweetService {
@@ -12,6 +13,29 @@ export class TweetService {
     @InjectRepository(Tweet)
     private readonly tweetRepository: Repository<Tweet>,
   ) {}
+
+  async getAllTweets() {
+    const tweets = await this.tweetRepository
+      .createQueryBuilder('tweet')
+      .leftJoinAndSelect('tweet.author', 'author')
+      .leftJoinAndSelect('tweet.likes', 'like')
+      .leftJoinAndSelect('like.user', 'likedUser')
+      .leftJoinAndSelect('tweet.retweets', 'retweet')
+      .leftJoinAndSelect('retweet.user', 'retweetedUser')
+      .select([
+        'tweet.id',
+        'tweet.content',
+        'author.name',
+        'author.email',
+        'like.id',
+        'likedUser.name',
+        'retweet.id',
+        'retweetedUser.name',
+      ])
+      .getMany();
+
+    return tweets.map((tweet) => TweetSerializer.serializeTweet(tweet));
+  }
 
   async createTweet({ content }: CreateTweetDto, user: User) {
     const tweet = this.tweetRepository.create({

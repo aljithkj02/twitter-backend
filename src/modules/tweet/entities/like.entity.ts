@@ -4,10 +4,12 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Tweet } from '@modules/tweet/entities/tweet.entity';
 
 @Entity('likes')
+@Unique(['user', 'tweet'])
 export class Like {
   @PrimaryGeneratedColumn()
   id: number;

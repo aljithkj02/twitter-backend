@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -16,13 +17,22 @@ import { CreateTweetDto } from '@modules/tweet/dto/create-tweet.dto';
 import { Request } from 'express';
 import { User } from '@modules/user/entities/user.entity';
 import { UpdateTweetDto } from '@modules/tweet/dto/update-tweet.dto';
+import { LikeService } from '@modules/tweet/like.service';
 
 @ApiTags('Tweets')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('bearer'))
 @Controller('tweet')
 export class TweetController {
-  constructor(private readonly tweetService: TweetService) {}
+  constructor(
+    private readonly tweetService: TweetService,
+    private readonly likeService: LikeService,
+  ) {}
+
+  @Get('all')
+  getAll() {
+    return this.tweetService.getAllTweets();
+  }
 
   @Post()
   createTweet(@Body() createTweetDto: CreateTweetDto, @Req() req: Request) {
@@ -44,5 +54,10 @@ export class TweetController {
     @Param('id', new ParseIntPipe()) id: number,
   ) {
     return this.tweetService.deleteTweet(id, req.user as User);
+  }
+
+  @Get('like/:id')
+  likeTweet(@Req() req: Request, @Param('id', new ParseIntPipe()) id: number) {
+    return this.likeService.likeTweet(id, req.user as User);
   }
 }
