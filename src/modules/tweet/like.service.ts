@@ -27,7 +27,7 @@ export class LikeService {
     }
 
     const existingLike = await this.likeRepository.findOneBy({
-      id: user.id,
+      user: { id: user.id },
       tweet: { id: tweetId },
     });
 
@@ -55,7 +55,7 @@ export class LikeService {
     }
 
     const existingLike = await this.likeRepository.findOneBy({
-      id: user.id,
+      user: { id: user.id },
       tweet: { id: tweetId },
     });
 
