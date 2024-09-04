@@ -29,14 +29,10 @@ export class FollowService {
       throw new NotFoundException('User to follow not found.');
     }
 
-    const isAlreadyFollowing = await this.followRepository.findOne({
-      where: {
-        follower: user,
-        followee: followee,
-      },
+    const isAlreadyFollowing = await this.followRepository.findOneBy({
+      follower: { id: user.id },
+      followee: { id: followee.id },
     });
-
-    // console.log({isAlreadyFollowing})
 
     if (isAlreadyFollowing) {
       throw new BadRequestException(
@@ -58,16 +54,35 @@ export class FollowService {
   }
 
   async unfollowUser(followeeId: number, user: User) {
+    if (followeeId === user.id) {
+      throw new BadRequestException('You cannot unfollow yourself.');
+    }
+
     const followee = await this.userRepository.findOneBy({ id: followeeId });
 
+    if (!followee) {
+      throw new NotFoundException('User to unfollow not found.');
+    }
+
+    const follow = await this.followRepository.findOneBy({
+      follower: { id: user.id },
+      followee: { id: followee.id },
+    });
+
+    if (!follow) {
+      throw new BadRequestException(
+        `You are not following ${followee.name}, so you cannot unfollow them.`,
+      );
+    }
+
     await this.followRepository.delete({
-      follower: user,
-      followee,
+      follower: { id: user.id },
+      followee: { id: followee.id },
     });
 
     return {
       statusCode: HttpStatus.OK,
-      message: `You unfollowed ${followee.name}`,
+      message: `You have unfollowed ${followee.name}`,
     };
   }
 
