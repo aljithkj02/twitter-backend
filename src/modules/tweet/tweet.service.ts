@@ -38,11 +38,29 @@ export class TweetService {
     }
 
     tweet.content = content;
-    this.tweetRepository.save(tweet);
+    await this.tweetRepository.save(tweet);
 
     return {
       status: HttpStatus.CREATED,
       message: 'Successfully updated the tweet!',
+    };
+  }
+
+  async deleteTweet(tweetId: number, user: User) {
+    const tweet = await this.tweetRepository.findOneBy({
+      id: tweetId,
+      author: { id: user.id },
+    });
+
+    if (!tweet) {
+      throw new NotFoundException('No such tweet exist!');
+    }
+
+    await this.tweetRepository.delete({ id: tweetId });
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Successfully deleted the tweet!',
     };
   }
 }
