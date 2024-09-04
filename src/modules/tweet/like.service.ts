@@ -46,4 +46,31 @@ export class LikeService {
       message: 'You liked the tweet!',
     };
   }
+
+  async unlikeTweet(tweetId: number, user: User) {
+    const tweet = await this.tweetRepository.findOneBy({ id: tweetId });
+
+    if (!tweet) {
+      throw new NotFoundException('Tweet not found');
+    }
+
+    const existingLike = await this.likeRepository.findOneBy({
+      id: user.id,
+      tweet: { id: tweetId },
+    });
+
+    if (!existingLike) {
+      throw new BadRequestException('You have not liked this tweet yet!');
+    }
+
+    await this.likeRepository.delete({
+      tweet: { id: tweet.id },
+      user: { id: user.id },
+    });
+
+    return {
+      status: HttpStatus.OK,
+      message: 'You unliked the tweet!',
+    };
+  }
 }

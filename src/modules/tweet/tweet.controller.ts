@@ -60,4 +60,12 @@ export class TweetController {
   likeTweet(@Req() req: Request, @Param('id', new ParseIntPipe()) id: number) {
     return this.likeService.likeTweet(id, req.user as User);
   }
+
+  @Get('unlike/:id')
+  unlikeTweet(
+    @Req() req: Request,
+    @Param('id', new ParseIntPipe()) id: number,
+  ) {
+    return this.likeService.unlikeTweet(id, req.user as User);
+  }
 }
